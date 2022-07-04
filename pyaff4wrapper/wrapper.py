@@ -12,25 +12,24 @@ class Aff4Wrapper(object):
         self._resolver= data_store.MemoryDataStore()
         self._zip_volume=zip.ZipFile.NewZipFile(self._resolver,None, self._volume_path_urn)
     def __repr__(self) -> str:
-        return f"{self.__class__}(\"{shlex.quote(self.aff4file)}\")"
-    
-    # @property
-    # def _volume(self):
-    #     if self._zip_volume is None:
-            
-    #     return self._zip_volume
-    def namelist(self)->list[str]:
-        names=[]
+        return f"{self.__class__.__name__}({shlex.quote(self.aff4file)})"
+
+
+    def _subjects(self)->list:
+        names={}
         for subject in self._resolver.QueryPredicateObject(None,
                 lexicon.AFF4_TYPE, lexicon.AFF4_IMAGE_TYPE):
                 # print(subject)
-                names.append(urllib.parse.unquote(subject.value))
+                names[urllib.parse.unquote(subject.value)]=subject
+        for subject in self._resolver.QueryPredicateObject(None,
+                lexicon.AFF4_TYPE, lexicon.AFF4_FILEIMAGE):
+                # print(subject)
+                names[urllib.parse.unquote(subject.value)]=subject
         return names
+    def namelist(self)->list[str]:
+        return list(self._subjects().keys())        
     
     def open(self,name) ->aff4_image.AFF4SImage:
-        for subject in self._resolver.QueryPredicateObject(None,
-                lexicon.AFF4_TYPE, lexicon.AFF4_IMAGE_TYPE):
-                # print(subject)
-                sn=urllib.parse.unquote(subject.value)
+        for sn,subject in self._subjects().items():
                 if name==sn:
                     return self._resolver.AFF4FactoryOpen(subject)
