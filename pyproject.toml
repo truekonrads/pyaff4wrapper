@@ -1,9 +1,14 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
 [project]
 name = "pyaff4wrapper"
-version = "0.0.1"
+authors = [{name = "Konrads Klints", email = "kklints@kpmg.com.sg"}]
+dynamic = ["version", "description"]
 dependencies = [
     "pyaff4",
 ]
+
+[project.urls]
+Home = "https://github.com/truekonrads/pyaff4wrapper"
