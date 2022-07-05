@@ -49,5 +49,6 @@ def fix_read(stream: AFF4Stream) -> AFF4Stream:
         return self.Read(length)
     stream._old_read=stream.read
     stream.read=lambda length=None: new_read(stream,length)
+    stream.close=lambda: None
     return stream
 

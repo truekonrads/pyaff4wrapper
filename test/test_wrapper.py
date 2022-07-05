@@ -30,4 +30,12 @@ class TestWrapper(unittest.TestCase):
         sample=str(Path(__file__).parent / "Base-Linear.aff4")
         wrapper=Aff4Wrapper(sample)
         self.assertRaises(Aff4WrapperException,wrapper.open,"aff4://c215ba20-5648-4209-a793-1f918c723610/INVALID")
+
+    def test_close(self):        
+        sample=str(Path(__file__).parent / "Base-Linear.aff4")
+        wrapper=Aff4Wrapper(sample)
+        fh=wrapper.open("aff4://c215ba20-5648-4209-a793-1f918c723610")
+        fh.close()
+        self.assertTrue(True)
+    
         
