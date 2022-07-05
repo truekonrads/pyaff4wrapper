@@ -3,8 +3,11 @@ from pyaff4 import aff4_image
 from pyaff4 import lexicon
 from pyaff4 import rdfvalue
 from pyaff4 import zip
+from pyaff4.aff4 import AFF4Stream
 import urllib.parse
 import shlex
+class Aff4WrapperException(Exception): 
+    pass
 class Aff4Wrapper(object):
     def __init__(self,aff4file) -> None:
         self.aff4file=aff4file
@@ -32,4 +35,19 @@ class Aff4Wrapper(object):
     def open(self,name) ->aff4_image.AFF4SImage:
         for sn,subject in self._subjects().items():
                 if name==sn:
-                    return self._resolver.AFF4FactoryOpen(subject)
+                    stream=self._resolver.AFF4FactoryOpen(subject)
+                    fixed_stream=fix_read(stream)
+                    return fixed_stream
+        raise Aff4WrapperException(f"Unable to find {name} in the archive")
+
+
+
+def fix_read(stream: AFF4Stream) -> AFF4Stream:
+    def new_read(self,length=None):
+        if length is None:
+            length=self.size
+        return self.Read(length)
+    stream._old_read=stream.read
+    stream.read=lambda length=None: new_read(stream,length)
+    return stream
+

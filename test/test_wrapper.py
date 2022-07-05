@@ -1,5 +1,5 @@
 import unittest
-from pyaff4wrapper import Aff4Wrapper
+from pyaff4wrapper import Aff4Wrapper,Aff4WrapperException
 from pathlib import Path
 from hashlib import sha1
 class TestWrapper(unittest.TestCase):
@@ -23,5 +23,11 @@ class TestWrapper(unittest.TestCase):
             contents=fh.read()
             m=sha1()
             m.update(contents)
-            self.assertEqual(len(contents),1048576)
-            self.assertEqual(m.hexdigest(),"9b5be697bdd44542fcc69fbfb6dc2a586b1e300d")
+            self.assertEqual(len(contents),fh.size)
+            self.assertEqual(m.hexdigest(),"fbac22cca549310bc5df03b7560afcf490995fbb")
+
+    def test_open_invalid_name(self):
+        sample=str(Path(__file__).parent / "Base-Linear.aff4")
+        wrapper=Aff4Wrapper(sample)
+        self.assertRaises(Aff4WrapperException,wrapper.open,"aff4://c215ba20-5648-4209-a793-1f918c723610/INVALID")
+        
