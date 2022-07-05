@@ -2,6 +2,9 @@ import unittest
 from pyaff4wrapper import Aff4Wrapper,Aff4WrapperException
 from pathlib import Path
 from hashlib import sha1
+import tempfile
+
+import pyaff4wrapper
 class TestWrapper(unittest.TestCase):
     def setUp(self) -> None:
         return super().setUp()
@@ -37,5 +40,26 @@ class TestWrapper(unittest.TestCase):
         fh=wrapper.open("aff4://c215ba20-5648-4209-a793-1f918c723610")
         fh.close()
         self.assertTrue(True)
+
+    def test_extract(self):
+        sample=str(Path(__file__).parent / "Base-Linear.aff4")
+        wrapper=Aff4Wrapper(sample)
+        tmpdir=tempfile.mkdtemp(self.__class__.__name__)
+        member="aff4://c215ba20-5648-4209-a793-1f918c723610"
+        try:
+            wrapper.extract(member,tmpdir)
+            fn=member.lstrip("aff4://")
+            filepath=Path(tmpdir) / fn
+            self.assertTrue(filepath.is_file())
+            with open(filepath,"rb") as f:
+                m=sha1()
+                m.update(f.read())
+                self.assertEqual(m.hexdigest(),"fbac22cca549310bc5df03b7560afcf490995fbb")
+        finally:
+            print(f"About to remove {tmpdir}")
+            # os.rm
     
-        
+
+if __name__ == '__main__':
+    print(f"Version is {pyaff4wrapper.__version__} ")
+    unittest.main()        

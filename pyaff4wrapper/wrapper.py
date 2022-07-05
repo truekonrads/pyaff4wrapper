@@ -6,6 +6,7 @@ from pyaff4 import zip
 from pyaff4.aff4 import AFF4Stream
 import urllib.parse
 import shlex
+from pathlib import Path
 class Aff4WrapperException(Exception): 
     pass
 class Aff4Wrapper(object):
@@ -39,6 +40,29 @@ class Aff4Wrapper(object):
                     fixed_stream=fix_read(stream)
                     return fixed_stream
         raise Aff4WrapperException(f"Unable to find {name} in the archive")
+
+    def extract(self,member:str,path:str=None,pwd:str=None)->str:
+        """Compatibility method with ZipFile.extract"""
+        if pwd is not None:
+            raise NotImplementedError("pwd is not implemented yet")
+        if path is None:
+            path=Path.cwd()
+        
+        if "/" in member: #there is a directory structure for the path
+            *dirs,fn=member.lstrip("aff4://").split("/")
+            destdir=Path(path) / "/".join(dirs)
+            if not destdir.exists():
+                destdir.mkdir(parents=True)
+            dest=destdir / fn
+        else:
+            dest=path / member
+        # print(f"Dest is: {dest}")
+        with open(dest,"wb") as f:
+            f.write(self.open(member).read())            
+        return str(path)
+
+        
+
 
 
 
